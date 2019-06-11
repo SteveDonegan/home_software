@@ -1,3 +1,4 @@
+import datetime
 import shutil
 
 __author__ = 'Steve'
@@ -20,10 +21,14 @@ if __name__ == "__main__":
     cnt = 0
     dup_cnt = 0
 
-    files_to_copy = []
     bad_files_found = []
 
     for root, dirs, files in os.walk(dir_to_scan):
+
+        #create a log per directory
+        #datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        files_to_copy = []
+        logfilename = os.path.join(root,datetime.now().strftime('%Y%m%d%H%M%S_transfer.log'))
 
         for filename in files:
             cnt += 1
@@ -49,7 +54,7 @@ if __name__ == "__main__":
 
                         print "WARNING: Duplicate file in target dir: %s" %target_file
 
-                        #if a file of that name already exists, check if md5 is the same
+                        #if a file of that name already exists, check if md5 is the same.  Extremely unlikely...
                         if photo.details['md5'] != photo.get_checksum(target_file):
                             raise Exception( "ERROR: Duplicate filename found but actual file contents different!")
 
@@ -62,10 +67,12 @@ if __name__ == "__main__":
                         #copy file to new archive location
                         shutil.copy2(source_filename, target_file)
 
-                        files_to_copy.append(target_file)
+                        #files_to_copy.append(target_file)
 
-                    files_to_copy.append(target_file)
+                    files_to_copy.append((source_filename,target_file))
 
+                    #todo move this to post move...
+                    '''
                     photo_json = photo.metadata_line()
 
                     #does target directory have a json summary file?
@@ -91,13 +98,19 @@ if __name__ == "__main__":
                     #update or create a new metadata file
                     #if not os.path.exists(os.path.join(photo.target_directory, photo.METADATA_FILENAME)):
                      #   print 'TODO: create function to create or update the metadata file'
-
+                    '''
                 if filename not in files_to_copy:
                     files_to_copy.append(filename)
 
             except Exception as ex:
                 print "ERROR: %s" %ex
                 bad_files_found.append(filename)
+
+            #write to log
+            with open(logfilename, 'w') as f:
+                for i in files_to_copy:
+                    content = '%s copied '
+                f.writelines(content)
 
 #works first time around but then doesnt seem to be able to parse added to json next time round.
 
