@@ -23,12 +23,14 @@ if __name__ == "__main__":
 
     bad_files_found = []
 
+    logfilename = os.path.join(archive_base_dir, datetime.datetime.now().strftime('%Y%m%d%H%M%S_transfer.log'))
+    logline = ''
+
     for root, dirs, files in os.walk(dir_to_scan):
 
         #create a log per directory
         #datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         files_to_copy = []
-        logfilename = os.path.join(root,datetime.now().strftime('%Y%m%d%H%M%S_transfer.log'))
 
         for filename in files:
             cnt += 1
@@ -52,7 +54,9 @@ if __name__ == "__main__":
                     #exactly the same so do check based on md5
                     if os.path.exists((target_file)):
 
-                        print "WARNING: Duplicate file in target dir: %s" %target_file
+                        logline += '%s WARNING: source %s already exists at %s (%s)\n' % (
+                        datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), \
+                        source_filename, target_file, photo.details['md5'])
 
                         #if a file of that name already exists, check if md5 is the same.  Extremely unlikely...
                         if photo.details['md5'] != photo.get_checksum(target_file):
@@ -67,7 +71,11 @@ if __name__ == "__main__":
                         #copy file to new archive location
                         shutil.copy2(source_filename, target_file)
 
-                        #files_to_copy.append(target_file)
+                        if os.path.exists(target_file):
+
+                            #files_to_copy.append(target_file)
+                            logline += '%s SUCCESS: Copied %s to %s (%s)\n' %(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),\
+                                                                           source_filename, target_file, photo.details['md5'])
 
                     files_to_copy.append((source_filename,target_file))
 
@@ -103,15 +111,15 @@ if __name__ == "__main__":
                     files_to_copy.append(filename)
 
             except Exception as ex:
-                print "ERROR: %s" %ex
+                logline += '%s ERROR: Could not copy %s to %s (%s)\n' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), \
+                                                                source_filename, target_file, ex)
+
                 bad_files_found.append(filename)
 
             #write to log
-            with open(logfilename, 'w') as f:
-                for i in files_to_copy:
-                    content = '%s copied '
-                f.writelines(content)
 
-#works first time around but then doesnt seem to be able to parse added to json next time round.
+    with open(logfilename, 'w') as f:
+        f.writelines(logline)
 
-    print "Found %s files %s duplicated (%s bad files)!" %(cnt,dup_cnt, len(bad_files_found))
+    #works first time around but then doesnt seem to be able to parse added to json next time round.
+    msg =  "Found %s files %s duplicated (%s bad files)!" %(cnt,dup_cnt, len(bad_files_found))
