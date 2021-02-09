@@ -4,6 +4,7 @@ import os, sys
 from datetime import datetime
 import hashlib
 
+
 from PIL import Image
 from PIL.ExifTags import TAGS
 
@@ -152,4 +153,4 @@ if __name__ == "__main__":
             else:
                 dup_cnt +=1
             '''
-    print "Found %s files %s duplicated (%s bad files)!" %(cnt,dup_cnt, len(bad_files_found))
+    print (f"Found {cnt} files {dup_cnt} duplicated ({len(bad_files_found)} bad files)!")
