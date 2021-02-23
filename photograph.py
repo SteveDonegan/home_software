@@ -10,6 +10,9 @@ from PIL.ExifTags import TAGS
 
 import os
 
+class BadPhotographError(Exception):
+    pass
+
 class Photograph(object):
     '''
         Class to characterise a single photo and provide methods on this
@@ -65,11 +68,11 @@ class Photograph(object):
 
         block2 = os.path.splitext(os.path.basename(self.filename))[0].zfill(12)
 
-        block3 = self.details['camera'].zfill(12)
+        #block3 = self.details['camera'].zfill(12)
 
         ext = self.details['extension']
 
-        self.qualified_filename = '%s_%s_%s%s' %(block1,block2,block3,ext)
+        self.qualified_filename = f"{block1}_{block2}.{ext}"
 
 
     def set_target_dirname(self, base_directory):
@@ -79,6 +82,8 @@ class Photograph(object):
         '''
 
         self.target_directory = os.path.join(base_directory, self.details['year'], self.details['month'], self.details['day'])
+
+
 
 
     def get_exif_header(self,filename):
@@ -108,17 +113,13 @@ class Photograph(object):
         :return:
         '''
 
-        md5 = hashlib.md5()
+        #md5 = hashlib.md5()
 
         try:
-            datafile = open(data_file)
-
-            for line in datafile:
-                md5.update(line)
-
-            datafile.close()
-
-            return md5.hexdigest()
+            #see https://debugpointer.com/create-md5-hash-of-a-file-in-python/
+            with open(data_file, 'rb') as f:
+                data = f.read()
+                return hashlib.md5(data).hexdigest()
 
         except Exception as ex:
             raise Exception ("Could not calculate checksum for: %s (%s)" %(data_file,ex))
