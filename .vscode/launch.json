@@ -5,11 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Current File",
+            "name": "Run archive_imagery.py",
+            "preLaunchTask": "copy source files",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
+            "program": "C:\\Users\\wurze\\workspace\\home_software\\archive_imagery.py",
+            "console": "integratedTerminal",
+            "args": ["C:\\workspace\\photos\\archive_source","C:\\workspace\\photos\\archive_destination"]
         }
     ]
-}
+} 
